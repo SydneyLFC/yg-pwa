@@ -1,24 +1,13 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+// src/lib/supabaseClient.ts
+import { createClient } from '@supabase/supabase-js';
 
-/**
- * Read public env (must be defined in `.env.local` and on Vercel)
- */
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-if (!url || !anon) {
-  // Fail early in prod, warn in dev
-  const msg = '[supabase] Missing env vars: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY';
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error(msg);
-  } else {
-    console.warn(msg);
-  }
+if (!supabaseUrl || !supabaseAnonKey) {
+  // In production this will break; locally it will warn
+  console.warn('[supabase] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY');
 }
 
-/**
- * Single Supabase client instance for the app
- */
-const supabase: SupabaseClient = createClient(url, anon);
-
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export default supabase;
