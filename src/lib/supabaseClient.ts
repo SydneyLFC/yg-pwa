@@ -1,26 +1,24 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 /**
- * Read public env (must be set in `.env.local` on dev and in Vercel Project → Settings → Environment Variables)
+ * Read public env (must be defined in `.env.local` and on Vercel)
  */
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  // In production this will crash early and tell you what's wrong;
-  // in dev you can switch this to console.warn if you prefer.
-  throw new Error(
-    '[supabase] Missing env. Define NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
-  );
+if (!url || !anon) {
+  // Fail early in prod, warn in dev
+  const msg = '[supabase] Missing env vars: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY';
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(msg);
+  } else {
+    console.warn(msg);
+  }
 }
 
-/** Single shared client instance */
-const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: false,
-  },
-});
+/**
+ * Single Supabase client instance for the app
+ */
+const supabase: SupabaseClient = createClient(url, anon);
 
 export default supabase;
