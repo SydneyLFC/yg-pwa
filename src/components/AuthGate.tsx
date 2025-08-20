@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import supabase from '@/lib/supabaseClient'; // default export
+import supabase from '@/lib/supabaseClient';
 
 type Props = { children: React.ReactNode };
 
@@ -21,13 +21,18 @@ export default function AuthGate({ children }: Props) {
 
     async function boot() {
       try {
+        if (!supabase?.auth) {
+          setError('Supabase not configured.');
+          setLoading(false);
+          return;
+        }
         const { data } = await supabase.auth.getSession();
         if (!isMounted) return;
         setSession((data as any)?.session ?? null);
         setLoading(false);
 
         const { data: sub } = supabase.auth.onAuthStateChange((_evt, s) => {
-          setSession(s ?? null);
+          setSession((s as any) ?? null);
           setLoading(false);
         });
 
@@ -70,9 +75,7 @@ export default function AuthGate({ children }: Props) {
     } catch {}
   }
 
-  if (loading) {
-    return <div style={{ padding: 24 }}>Loading…</div>;
-  }
+  if (loading) return <div style={{ padding: 24 }}>Loading…</div>;
 
   if (!session) {
     return (
@@ -103,9 +106,7 @@ export default function AuthGate({ children }: Props) {
     <div>
       <div style={{ padding: 12, borderBottom: '1px solid #ddd' }}>
         Signed in as <b>{session.user.email || 'member'}</b>
-        <button onClick={handleSignOut} style={{ marginLeft: 12 }}>
-          Sign out
-        </button>
+        <button onClick={handleSignOut} style={{ marginLeft: 12 }}>Sign out</button>
       </div>
       <main>{children}</main>
     </div>
