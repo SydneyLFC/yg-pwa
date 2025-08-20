@@ -1,0 +1,10 @@
+import sharp from "sharp";
+
+const input = "Yaraglow Logo Canva.jpg";   // adjust path if needed
+const output = "public/logo-source.png";
+
+sharp(input)
+  .png()
+  .toFile(output)
+  .then(() => console.log(`✅ Converted ${input} → ${output}`))
+  .catch(err => console.error("❌ Error converting:", err));
