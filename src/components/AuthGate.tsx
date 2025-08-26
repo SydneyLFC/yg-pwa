@@ -1,58 +1,47 @@
-// src/components/AuthGate.tsx
-'use client';
+"use client";
 
-import { useEffect, useState, type ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import supabase from '@/lib/supabaseClient';
+import { ReactNode, useEffect, useState } from "react";
+import supabase from "@/lib/supabaseClient";
 
-type Props = {
-  children: ReactNode;
-  redirectTo?: string;
-  loadingFallback?: ReactNode;
-};
-
-export default function AuthGate({
-  children,
-  redirectTo = '/login',
-  loadingFallback = null,
-}: Props) {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [authed, setAuthed] = useState<boolean | null>(null);
+export default function AuthGate({ children }: { children: ReactNode }) {
+  const [ready, setReady] = useState(false);
+  const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
-    let active = true;
-
-    // initial check
-    supabase.auth.getSession().then(({ data, error }) => {
-      if (!active) return;
-      if (error) {
-        setAuthed(false);
-        setLoading(false);
-        router.replace(redirectTo);
-        return;
-      }
+    const run = async () => {
+      const { data } = await supabase.auth.getSession();
       setAuthed(!!data.session);
-      setLoading(false);
-      if (!data.session) router.replace(redirectTo);
-    });
-
-    // subscribe to auth changes
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!active) return;
-      const isAuthed = !!session;
-      setAuthed(isAuthed);
-      if (!isAuthed) router.replace(redirectTo);
-    });
-
-    return () => {
-      active = false;
-      // v2 returns { data: { subscription } }
-      sub?.subscription?.unsubscribe?.();
+      setReady(true);
     };
-  }, [redirectTo, router]);
+    run();
+  }, []);
 
-  if (loading) return <>{loadingFallback}</>;
-  if (!authed) return null;
+  if (!ready) {
+    return (
+      <div className="grid min-h-[60vh] place-items-center p-10 text-slate-600">
+        Checking session…
+      </div>
+    );
+  }
+
+  if (!authed) {
+    return (
+      <div className="grid min-h-[60vh] place-items-center p-10">
+        <div className="max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">Sign in required</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Please sign in to view your dashboard.
+          </p>
+          <a
+            href="/"
+            className="mt-6 inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          >
+            Go to Home
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return <>{children}</>;
 }
