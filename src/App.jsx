@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import supabase from "./lib/supabaseClient";
+import supabase from "./lib/tempSupabaseClient";
 
 /* ---------------- helpers ---------------- */
 const todayISO = () => new Date().toISOString().slice(0, 10);
