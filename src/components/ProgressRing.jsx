@@ -2,12 +2,9 @@
 
 import React from 'react';
 
-type Props = {
-  value: number; // 0–100
-  label?: string;
-};
+// value: number (0–100), label?: string
 
-export default function ProgressRing({ value, label = 'Progress' }: Props) {
+export default function ProgressRing({ value, label = 'Progress' }) {
   const clamped = Math.max(0, Math.min(100, value));
   return (
     <div>

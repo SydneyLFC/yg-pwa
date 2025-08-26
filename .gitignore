@@ -26,3 +26,4 @@ yarn-error.log*
 # pwa artifacts generated at build
 public/sw.js
 public/workbox-*.js
+.vercel

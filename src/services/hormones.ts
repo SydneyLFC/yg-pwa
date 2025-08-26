@@ -1,4 +1,4 @@
-import supabase from '../lib/tempSupabaseClient';
+import supabase from '../lib/supabaseClient';
 
 export async function addHormoneResult(payload: {
   result_date: string;
